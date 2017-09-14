@@ -48,11 +48,12 @@ available_regs = ['A', 'B', 'C', 'D']
 search_time = 2
 approx_depth = 5
 
+# set verbosity to 10 to output filter graph representations. Requires pygraphviz.
 program, stats = generate(filter, search_time,
                           start_reg=start_reg,
                           target_reg=target_reg,
                           available_regs=available_regs,
-                          verbose=10,
+                          verbose=9,
                           approx_depth=approx_depth,
                           pair_props=pair_props)
 
