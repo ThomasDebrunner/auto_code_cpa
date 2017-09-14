@@ -1,0 +1,5 @@
+__pycache__
+haarcascade_frontalface_default.xml
+*.pkl
+ocv_stages/*
+.idea
