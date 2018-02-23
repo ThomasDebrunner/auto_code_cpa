@@ -20,12 +20,12 @@ def print_meta_program(meta_program, dot=False, title=''):
         node_labels[instr.target] = '%d'%(i+1)
         G.node[instr.target]['label'] = node_labels[instr.target]
         edge_labels[(instr.source, instr.target)] = str(instr).split('|| ')[-1]
-        G.add_edge(instr.source, instr.target, {'label': latexify_shift_label(edge_labels[(instr.source, instr.target)])})
+        G.add_edge(instr.source, instr.target, attr_dict={'label': latexify_shift_label(edge_labels[(instr.source, instr.target)])})
         if isinstance(instr, AddMetaInstruction):
             edge_labels[(instr.source, instr.target)] = '+' if not instr.s1neg else '-'
             edge_labels[(instr.source2, instr.target)] = '+' if not instr.s2neg else '-'
             G[instr.source][instr.target]['label'] = edge_labels[(instr.source, instr.target)]
-            G.add_edge(instr.source2, instr.target, {'label': edge_labels[(instr.source2, instr.target)]})
+            G.add_edge(instr.source2, instr.target, attr_dict={'label': edge_labels[(instr.source2, instr.target)]})
 
 
     plt.figure()
