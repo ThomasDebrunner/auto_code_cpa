@@ -16,9 +16,7 @@ def approx(target, depth=5, max_coeff=-1, silent=True):
             break
 
         # if the error is smaller than half the current coefficient, we go further away from target
-        # if the error is between current/2 and 3/4*current we actually come closer by waiting
-        # and using the term in the next iteration.
-        if abs(total - target) > 3/4*current:
+        if abs(total - target) > 1/2*current:
 
             # decide which direction brings us closer to the target
             if abs((total-current)-target) > abs(total + current - target):
