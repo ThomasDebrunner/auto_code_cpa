@@ -53,11 +53,16 @@ available_regs = ['A', 'B', 'C']
 search_time = 2
 approx_depth = 3
 
+# the format can be any of
+# APRON: A modified format for the APRON simulator.
+# CSIM: A C format for the cpa-sim simulator
+
 # set verbosity to 10 to output filter graph representations. Requires pygraphviz.
 program, stats = generate(filter, search_time,
                           start_reg=start_reg,
                           target_reg=target_reg,
                           available_regs=available_regs,
                           verbose=9,
+                          out_format='CSIM',
                           approx_depth=approx_depth,
                           pair_props=pair_props)

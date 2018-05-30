@@ -1,4 +1,4 @@
-from .Programmer import AddMetaInstruction, MoveMetaIntstruction
+from .MetaProgrammer import AddMetaInstruction, MoveMetaIntstruction
 import scamp_filter.Grapher as Grapher
 
 

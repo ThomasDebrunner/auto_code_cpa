@@ -1,5 +1,7 @@
 from scamp_filter.Item import Atom as A
-import scamp_filter.Programmer as Programmer
+import scamp_filter.MetaProgrammer as MetaProgrammer
+import scamp_filter.ScampProgrammer as ScampProgrammer
+
 import scamp_filter.Simulator as Simulator
 import scamp_filter.MetaTransform as MetaTransform
 import scamp_filter.Grapher as Grapher
@@ -154,7 +156,7 @@ def _r_search(goals, n_reg, plan, plans, cost_acc, min_cost, end_time, scale, so
     return min_cost
 
 
-def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A', target_reg='B', verbose=1, pair_props=None, approx_depth=5, max_approx_coeffs=-1):
+def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A', target_reg='B', verbose=1, out_format='APRON', pair_props=None, approx_depth=5, max_approx_coeffs=-1):
     """Generates a SCAMP program for the given filter"""
     if pair_props is None:
         pair_props = PairGenProps(
@@ -204,7 +206,7 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
     for i, (_, best_plan) in enumerate(best_plans):
         if i == 1:
             break
-        meta_program = Programmer.generate_meta_program(best_plan)
+        meta_program = MetaProgrammer.generate_meta_program(best_plan)
         cost = sum(x.cost() for x in meta_program)
         if verbose > 0:
             print(colored('| ... Meta program with %d steps generated. Cost: %d' % (len(meta_program), cost), 'yellow'))
@@ -256,7 +258,7 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
 
     if verbose > 0:
         print(colored('>> Generating SCAMP code', 'magenta'))
-    program = Programmer.generate_scamp_program(meta_program, available_regs, start_reg, target_reg)
+    program = ScampProgrammer.generate_scamp_program(meta_program, available_regs, start_reg, target_reg)
     if verbose > 0:
         print(colored('... SCAMP code with %d instructions generated' % len(program), 'yellow'))
 
@@ -272,5 +274,19 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
             print(colored('\U0001F37A Validation succeeded', 'green'))
     else:
         raise AssertionError('[Error] Code validation failed')
+
+    if verbose > 0:
+        print(colored('>> Translating program', 'magenta'))
+    if out_format == 'APRON' and verbose > 0:
+        print(colored('... Done. No translation needed (APRON)', 'yellow'))
+    elif out_format == 'CSIM':
+        program = ScampProgrammer.translate_program_csim(program)
+        if verbose > 0:
+            print(colored('... Done', 'yellow'))
+        if verbose > 2:
+            for step in program:
+                print(step)
+    else:
+        print(colored('[WARNING] Unknown out format. Printing APRON', 'yellow'))
 
     return program, sol_stats

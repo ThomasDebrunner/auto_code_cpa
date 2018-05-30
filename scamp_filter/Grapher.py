@@ -1,7 +1,7 @@
 import networkx as nx
 from networkx.drawing.nx_agraph import graphviz_layout
 from networkx.drawing.nx_agraph import write_dot
-from .Programmer import AddMetaInstruction
+from .MetaProgrammer import AddMetaInstruction
 from .Latexer import latexify_shift_label
 import matplotlib.pyplot as plt
 import time

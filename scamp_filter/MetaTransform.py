@@ -1,4 +1,4 @@
-from .Programmer import AddMetaInstruction, MoveMetaIntstruction
+from .MetaProgrammer import AddMetaInstruction, MoveMetaIntstruction
 from .RegAlloc import get_liveness
 from itertools import chain, combinations
 from statistics import median
