@@ -124,7 +124,7 @@ def translate_program_csim(program):
             out_program.append('div2(%s, %s);' % (m.group(1), m.group(2)))
         elif neg_r.match(line):
             m = neg_r.search(line)
-            out_program.append('neg(%s, %s);' % (m.group(1), m.group(2)))
+            out_program.append('neg(%s, %s);' % (m.group(1), m.group(3)))
         elif copy_r.match(line):
             m = copy_r.search(line)
             out_program.append('mov(%s, %s);' % (m.group(1), m.group(2)))

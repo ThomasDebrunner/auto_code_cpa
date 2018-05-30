@@ -156,11 +156,12 @@ def main():
         with open('pre_ocv_kernels.pkl', 'wb') as file:
             pickle.dump(program_store, file)
 
-        with open('ocv_stages/vj_core_ocv_stage_%d.aps'%(i+1), 'w') as file:
-            file.write('#vj_stage_%d\n'%(i+1))
+        with open('ocv_stages/vj_core_ocv_stage_%d.h'%(i+1), 'w') as file:
+            file.write('#include "../scamp.h"\n\n')
+            file.write('void vj_stage_%d() {\n'%(i+1))
             for line in program:
                 file.write(line + '\n')
-            file.write('_ret\n\n\n')
+            file.write('}\n\n\n')
 
     print('...Generation done')
 
