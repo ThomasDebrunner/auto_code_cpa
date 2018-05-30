@@ -9,6 +9,9 @@ L_INT = 1e6
 
 
 class ElemMove:
+    """An elementary move describes the possibility to take n_sources atoms from the set of sources (a set with only the
+    ids of atoms) and transform them to n_targets atoms from the set of targets (again, just ids).
+    The atoms with ids in sources all have the same coordinates, as have the atoms in targets"""
     def __init__(self, sources, targets, n_sources, n_targets, move):
         self.sources = sources
         self.targets = targets
@@ -17,10 +20,12 @@ class ElemMove:
         self.move = move
 
     def __str__(self):
-        return ('take %d generate %d'%(self.n_sources, self.n_targets)) + ' from ' + str(self.sources) + ' to ' + str(self.targets)
+        return ('Take %d generate %d'%(self.n_sources, self.n_targets)) + ' from ' + str(self.sources) + ' to ' + str(self.targets)
 
 
 def translate_goal(igoal, scale, nr_offset=0):
+    """Translates an item goal (pre-goal) into an atom goal. An item is represented as (scale, x, y) and always
+    unique in a set. An atom is ([nr], x, y) and globally unique. An atom has a fixed 2^-D scale."""
     agoal = set()
     nr = nr_offset
     for item in igoal:
@@ -30,19 +35,21 @@ def translate_goal(igoal, scale, nr_offset=0):
     return agoal, nr
 
 
-def get_scales(acc, scale):
-    """Returns the item scales required to get the accumulator value given the global scale"""
+def get_scales(count, scale):
+    """Returns the item scales required to represent a count of atoms at equal position"""
     res = []
     i = scale
-    while acc > 0:
-        if acc & 1:
+    while count > 0:
+        if count & 1:
             res.append(i)
-        acc >>= 1
+        count >>= 1
         i -= 1
     return res
 
 
 def translate_back_set(s, scale):
+    """Translates a set of atoms (goal) into a set of items (pre-goal). Counts the amount of atoms at specific
+    locations, and generates Items with appropriate scales by using the get_scales function"""
     if not s:
         return set()
     s = list(s)
@@ -59,10 +66,6 @@ def translate_back_set(s, scale):
             acc += 1
     ns = ns | {I(s, o_x, o_y, o_p) for s in get_scales(acc, scale)}
     return ns
-
-
-def translate_back_plan(aplan, scale):
-    return [[translate_back_set(s, scale) for s in step] for step in aplan]
 
 
 def distinct_pos(s):
@@ -88,7 +91,14 @@ def get_distances(s1, s2):
 
 
 def generate_elementary_moves(group):
-    # form clusters. A cluster is the set of all tuples in a group that have same start and end coord
+    """Takes a group (a list of pairs (a, b) with the same transformation distance). Splits the group by the start
+    coordinates (end coordinates are then the same, as transformation distance is same) and creates elementary moves
+    from this. An elementary move represents the possibility to take n_sources atoms from a source-set to generate
+    n_targets atoms from a target-set. All atoms in the source set share the same coordinates. The same holds for
+    all atoms in the target set. The ratio n_sources/n_targets is always some 2^k k in Z, as these are the only
+    scalings allowed."""
+
+    # form clusters. A cluster is the set of all pairs in a group that have same start and end coord
     clusters = {}
     for (a, b) in group:
         key = (a.val(), b.val())
@@ -97,6 +107,7 @@ def generate_elementary_moves(group):
         else:
             clusters[key] = [(a, b)]
 
+    # for each such cluster, create an elementary move for each allowed ratio (n_sources/n_targets)
     emoves = []
     for key, cluster in clusters.items():
         sources, targets = {a.nr for a, _ in cluster}, {b.nr for _, b in cluster}
@@ -108,6 +119,8 @@ def generate_elementary_moves(group):
 
 
 def group_emoves(emoves, props):
+    """Elementary moves with the same scale ratio can be combined. All emoves are from the same group, so they
+    share the same transformation distance. We can combine all emoves that also share the same scale ratio."""
     # group the emoves by ratio
     emoves.sort(key=lambda x: x.n_sources/x.n_targets)
     emovemap = {ratio: list(emove) for ratio, emove in groupby(emoves, key=lambda x: x.n_sources/x.n_targets)}

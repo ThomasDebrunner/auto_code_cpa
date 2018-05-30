@@ -254,7 +254,6 @@ def generate_scamp_add(source1, source2, s1neg, s2neg, target, reg_names):
 def generate_scamp_program(meta_program, available_regs, start_reg, target_reg):
 
     # if we can overwrite the start reg, have to order the names in a way that it works
-#    available_regs.append('F')
     if start_reg in available_regs:
         exp_pos = meta_program[0].source
         available_regs.remove(start_reg)

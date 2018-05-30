@@ -31,19 +31,19 @@ pair_props = PairGenProps(
 #     [1, 1, 1, 1, 1, 1, 1]
 # ])
 # #
-# filter = np.array([
-#     [0.342, 0.125, 0.513],
-#     [0.851, 0.111, 0.455],
-#     [0.513, 0.131, 0.634]
-# ])
+filter = np.array([
+    [0.342, 0.125, 0.513],
+    [0.851, 0.111, 0.455],
+    [0.513, 0.131, 0.634]
+])
 
 
-filter = np.array([[1,0.5,1]])
+# filter = np.array([[1,0.5,1]])
 
 
 start_reg = 'A'
 target_reg = 'A'
-available_regs = ['A', 'B', 'C', 'D']
+available_regs = ['A', 'B', 'C']
 
 search_time = 10
 approx_depth = 3
