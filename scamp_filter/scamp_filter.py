@@ -277,8 +277,9 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
 
     if verbose > 0:
         print(colored('>> Translating program', 'magenta'))
-    if out_format == 'APRON' and verbose > 0:
-        print(colored('... Done. No translation needed (APRON)', 'yellow'))
+    if out_format == 'APRON':
+        if verbose > 0:
+            print(colored('... Done. No translation needed (APRON)', 'yellow'))
     elif out_format == 'CSIM':
         program = ScampProgrammer.translate_program_csim(program)
         if verbose > 0:

@@ -25,61 +25,63 @@ def generate_centre_goal_for_feature(feature):
     tlx, tly = feature.top_left
     kernel = np.zeros((feature.height, feature.width))
     area = feature.width * feature.height
+    # scaling = 2**int(log2(area/8))
+    scaling = 1
     for rect in feature.rects:
         for x in range(rect.top_left[0]-tlx, rect.top_left[0]-tlx+rect.width):
             for y in range(rect.top_left[1]-tly, rect.top_left[1]-tly+rect.height):
-                kernel[y, x] += 1./area * rect.weight
-    return kernel
+                kernel[y, x] += (1./scaling) * rect.weight
+    return kernel, scaling
         
 
 def generate_filter_code_for_feature(feature, search_time=2):
-    goal = generate_centre_goal_for_feature(feature)
-    some_val = goal[0,0]
-    scaling = -int(log2(abs(approx(some_val, depth=20, max_coeff=1)[0])))
+    goal, scaling = generate_centre_goal_for_feature(feature)
 
-    program, sol_stats = generate(goal, search_time, available_regs=['C', 'D', 'E'], start_reg='A', target_reg='C', verbose=0, approx_depth=20, max_approx_coeffs=1)
+    program, sol_stats = generate(goal, search_time, available_regs=['C', 'D', 'E'], out_format='CSIM', start_reg='A', target_reg='C', verbose=0, approx_depth=20, max_approx_coeffs=1)
     return program, scaling
 
 
 def generate_threshold_code_for_feature(feature, dpalpha, dnalpha, scaling):
-    t0 = int(feature.threshold*255*feature.width*feature.height/(2**scaling))
-    t0s = max(-127, t0)
-    t0s = min(127, t0s)
+    # t0 = int(feature.threshold * 256 / scaling)
+    # t0s = max(-127, t0)
+    # t0s = min(127, t0s)
 
     prog = [
-        'D = in(%d)' % t0s,
-        'E = sub(C, D)',
-        'where(E)',
-        'R4 = FLAG',
-        'all'
+        'in(D, %.7f);' % feature.threshold,
+        'sub(E, C, D);',
+        'where(E);',
+        'd_mov(R4, FLAG);',
+        'all();'
     ]
 
     off_x = 12 - feature.top_left[0] - feature.width // 2
     off_y = 12 - feature.top_left[1] - feature.height // 2
 
-    prog = prog + ['R4 = pro.digital_news(R4, \'south\')' for _ in range(off_y, 0)]
-    prog = prog + ['R4 = pro.digital_news(R4, \'north\')' for _ in range(0, off_y)]
-    prog = prog + ['R4 = pro.digital_news(R4, \'east\')' for _ in range(off_x, 0)]
-    prog = prog + ['R4 = pro.digital_news(R4, \'west\')' for _ in range(0, off_x)]
+    prog = prog + ['d_south(R4, R4);' for _ in range(off_y, 0)]
+    prog = prog + ['d_north(R4, R4);' for _ in range(0, off_y)]
+    prog = prog + ['d_east(R4, R4);' for _ in range(off_x, 0)]
+    prog = prog + ['d_west(R4, R4);' for _ in range(0, off_x)]
 
     prog = prog + [
-        'where(R4)',
-        'D = in(%d)' % dnalpha,
-        'others',
-        'D = in(%d)' % dpalpha,
-        'all',
-        'B = add(B, D)'
+        'where(R4);',
+        'in(D, %.7f);' % dnalpha,
+        'nor(FLAG, FLAG);',
+        'in(D, %.7f);' % dpalpha,
+        'all();',
+        'add(B, B, D);'
     ]
 
     return prog
 
 def generate_stage_end_code(dthreshold):
     return [
-        'D = in(%d)' % dthreshold,
-        'D = sub(B, D)',
-        'where(D)',
-        'R5 = and(FLAG, R5)',
-        'all'
+        'in(D, %.7f);' % dthreshold,
+        'sub(D, B, D);',
+        'where(D);',
+        'nor(R12, FLAG);',
+        'nor(R11, R5);',
+        'nor(R5, R11, R12);',
+        'all();'
     ]
 
 def find_feature_groups(features):
@@ -99,16 +101,16 @@ def find_feature_groups(features):
 
 def generate_program_for_stage(stage, program_store):
     # compute average alpha ranges
-    OVERSHOOT = 1
-    up_total_alpha = sum((f.palpha if f.palpha > 0 else f.nalpha) for f in stage.features)
-    down_total_alpha = sum((f.palpha if f.palpha < 0 else f.nalpha) for f in stage.features)
-    alpha_range = up_total_alpha - down_total_alpha
+    # up_total_alpha = sum((f.palpha if f.palpha > 0 else f.nalpha) for f in stage.features)
+    # down_total_alpha = sum((f.palpha if f.palpha < 0 else f.nalpha) for f in stage.features)
+    # alpha_range = up_total_alpha - down_total_alpha
+    # alpha_offset = up_total_alpha - alpha_range/2
 
     total_program = []
 
     groups = find_feature_groups(stage.features)
 
-    for key, features  in groups.items():
+    for key, features in groups.items():
         if key in program_store:
             program, scaling = program_store[key]
         else:
@@ -118,15 +120,13 @@ def generate_program_for_stage(stage, program_store):
 
         total_program.extend(program)
 
-
         for feature in features:
-            dpalpha = int(round(OVERSHOOT * (feature.palpha / alpha_range) * 254))
-            dnalpha = int(round(OVERSHOOT * (feature.nalpha / alpha_range) * 254))
-            total_program.extend(generate_threshold_code_for_feature(feature, dpalpha, dnalpha, scaling))
+            # dpalpha = int(round(((feature.palpha - alpha_offset) / alpha_range) * 256))
+            # dnalpha = int(round(((feature.nalpha - alpha_offset) / alpha_range) * 256))
+            total_program.extend(generate_threshold_code_for_feature(feature, feature.palpha, feature.nalpha, scaling))
 
-    dstage_threshold = int(round(OVERSHOOT * (stage.threshold/alpha_range) * 254))
-    print(dstage_threshold)
-    total_program.extend(generate_stage_end_code(dstage_threshold))
+    # dstage_threshold = int(round(((stage.threshold - alpha_offset)/alpha_range) * 256))
+    total_program.extend(generate_stage_end_code(stage.threshold))
 
     print('... stage done')
     return total_program
