@@ -1,5 +1,5 @@
 from math import log2
-
+from collections import Counter
 
 class MetaInstruction:
     def __init__(self, source, target):
@@ -55,7 +55,14 @@ class AddMetaInstruction(MetaInstruction):
         return 1
 
     def __str__(self):
-        return '+ [%d]+[%d]->[%d]' % (self.source, self.source2, self.target)
+        if self.s1neg:
+            a, b, op = self.source2, self.source, '-'
+        elif self.s2neg:
+            a, b, op = self.source, self.source2, '-'
+        else:
+            a, b, op = self.source, self.source2, '+'
+
+        return '+ [%d]%s[%d]->[%d]' % (a, op, b, self.target)
 
     def __repr__(self):
         return self.__str__()
@@ -64,19 +71,29 @@ class AddMetaInstruction(MetaInstruction):
 def get_shift(pair):
     """Return the distance from goal 1 to goal 2, -1 if the goals are not similar"""
     down, up = pair
-    scale = int(log2(len(down)/len(up)))
+    ratio = len(down)/len(up)
+    scale = int(log2(ratio))
     # identify the distinct values
-    down, up = {a.val() for a in down}, {a.val() for a in up}
+    down, up = Counter([a.val() for a in down]), Counter([a.val() for a in up])
+
     if len(up) != len(down):
         raise ValueError('[Error] Invalid pair. No shift possible: ' + str(pair))
-    px, py, pneg = next(iter(down))
-    for ux, uy, uneg in up:
-        nx, ny, nneg = ux-px, uy-py, uneg != pneg
-        for dx, dy, dneg in down:
-            if (dx+nx, dy+ny,dneg != nneg) not in up:
+
+    lower_pivot = next(iter(down.keys()))
+    lower_pivot_count = down[lower_pivot]
+    lower_pivot_x, lower_pivot_y, lower_pivot_neg = lower_pivot
+    for (upper_pivot_x, upper_pivot_y, upper_pivot_neg), upper_pivot_count in up.items():
+        if upper_pivot_count * ratio != lower_pivot_count:
+            continue
+        distance_x, distance_y, distance_neg = \
+            upper_pivot_x-lower_pivot_x, upper_pivot_y-lower_pivot_y, upper_pivot_neg != lower_pivot_neg
+        # For the distance of the selected pivots, we must find a mapping for all remaining atoms
+        # if not, the pivot selection was wrong and we select another pivot (break)
+        for lower_x, lower_y, lower_neg in down.keys():
+            if (lower_x+distance_x, lower_y+distance_y, lower_neg != distance_neg) not in up.keys():
                 break
         else:
-            return scale, (nx, ny), nneg
+            return scale, (distance_x, distance_y), distance_neg
     raise ValueError('[Error] Invalid pair. No shift possible: ' + str(pair))
 
 

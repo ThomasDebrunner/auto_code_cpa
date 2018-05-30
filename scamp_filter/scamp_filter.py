@@ -219,7 +219,6 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
             print(colored('| >> Relaxing meta program', 'magenta'))
         while True:
             meta_program = MetaTransform.relax_same_shift(meta_program, n_reg)
-            new_cost = sum(x.cost() for x in meta_program)
             meta_program = MetaTransform.relax_rebalance(meta_program, n_reg)
             new_cost = sum(x.cost() for x in meta_program)
             if new_cost >= cost:
