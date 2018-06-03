@@ -57,10 +57,11 @@ def generate_threshold_code_for_feature(feature, dpalpha, dnalpha, scaling):
     off_x = 12 - feature.top_left[0] - feature.width // 2
     off_y = 12 - feature.top_left[1] - feature.height // 2
 
-    prog = prog + ['d_south(R4, R4);' for _ in range(off_y, 0)]
-    prog = prog + ['d_north(R4, R4);' for _ in range(0, off_y)]
-    prog = prog + ['d_east(R4, R4);' for _ in range(off_x, 0)]
-    prog = prog + ['d_west(R4, R4);' for _ in range(0, off_x)]
+    prog += ['_d_transform(R4, R4, off_x, off_y);']
+    prog = prog + ['// d_south(R4, R4);' for _ in range(off_y, 0)]
+    prog = prog + ['// d_north(R4, R4);' for _ in range(0, off_y)]
+    prog = prog + ['// d_east(R4, R4);' for _ in range(0, off_x)]
+    prog = prog + ['// d_west(R4, R4);' for _ in range(off_x, 0)]
 
     prog = prog + [
         'where(R4);',

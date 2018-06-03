@@ -18,7 +18,7 @@ patterns_apron = {
 }
 
 patterns_csim = {
-    'copy': 'mov({0}, {1});',
+    'copy': '// mov({0}, {1});',
     'south': '// south({0}, {1});',
     'north': '// north({0}, {1});',
     'west': '// west({0}, {1});',
@@ -45,7 +45,7 @@ def generate_scamp_shift(source, target, scale, shift, neg, reg_names, out_forma
 
     if scale == 0 and shift == (0, 0) and not neg:
         program.append(patterns['copy'].format(t, s))
-        return program
+        return program, 1
 
     copied = False
 
