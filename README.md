@@ -9,11 +9,13 @@ A **Cellular Processor Array (CPA)** is massively parallel image processing devi
 
 Consider a Sobel edge detection filter:
 
-$M=\begin{bmatrix}
-1 & 0 & -1\\
-2 & 0 & -2\\
-1 & 0 & -1
-\end{bmatrix}$
+```
+┌         ┐
+│ 1  0 -1 │
+│ 2  0 -2 │
+│ 1  0 -1 │
+└         ┘
+```
 
 On a **CPA** smart code for this filter could look like this, considering that we want to filter image in register `A` into register `A`, and storing intermediate values in register `B`.
 
