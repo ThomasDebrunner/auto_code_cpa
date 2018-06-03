@@ -258,9 +258,10 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
 
     if verbose > 0:
         print(colored('>> Generating SCAMP code', 'magenta'))
-    program = ScampProgrammer.generate_scamp_program(meta_program, available_regs, start_reg, target_reg)
+    program, program_length = ScampProgrammer.generate_scamp_program(meta_program, available_regs, start_reg,
+                                                                     target_reg, out_format)
     if verbose > 0:
-        print(colored('... SCAMP code with %d instructions generated' % len(program), 'yellow'))
+        print(colored('... SCAMP code with %d instructions generated' % program_length, 'yellow'))
 
     if verbose > 2:
         for step in program:
@@ -269,25 +270,11 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
     if verbose > 0:
         print(colored('>> Validating SCAMP code', 'magenta'))
     # validate
-    if Simulator.validate(program, pre_goal, start_reg, target_reg):
+    if Simulator.validate(program, pre_goal, start_reg, target_reg, out_format):
         if verbose > 0:
             print(colored('\U0001F37A Validation succeeded', 'green'))
     else:
+        print(colored('\U0000274C Validation failed!', 'red'))
         raise AssertionError('[Error] Code validation failed')
-
-    if verbose > 0:
-        print(colored('>> Translating program', 'magenta'))
-    if out_format == 'APRON':
-        if verbose > 0:
-            print(colored('... Done. No translation needed (APRON)', 'yellow'))
-    elif out_format == 'CSIM':
-        program = ScampProgrammer.translate_program_csim(program)
-        if verbose > 0:
-            print(colored('... Done', 'yellow'))
-        if verbose > 2:
-            for step in program:
-                print(step)
-    else:
-        print(colored('[WARNING] Unknown out format. Printing APRON', 'yellow'))
 
     return program, sol_stats

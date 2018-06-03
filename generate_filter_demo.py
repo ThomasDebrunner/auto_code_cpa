@@ -20,7 +20,7 @@ filter = np.array([
     [2, 0, -2],
     [1, 0, -1]
 ])
-
+#
 # filter = np.array([
 #     [1, 1, 1, 1, 1, 1, 1],
 #     [1, 1, 1, 1, 1, 1, 1],
@@ -30,13 +30,13 @@ filter = np.array([
 #     [1, 1, 1, 1, 1, 1, 1],
 #     [1, 1, 1, 1, 1, 1, 1]
 # ])
-
+#
 # filter = np.array([
 #     [0.342, 0.125, 0.513],
 #     [0.851, 0.111, 0.455],
 #     [0.513, 0.131, 0.634]
 # ])
-
+#
 # filter = np.array([
 #     [0.25, 0.0, 0.5],
 #     [0.75, 0.0, 0.5],
@@ -63,6 +63,6 @@ program, stats = generate(filter, search_time,
                           target_reg=target_reg,
                           available_regs=available_regs,
                           verbose=9,
-                          out_format='CSIM',
+                          out_format='APRON',
                           approx_depth=approx_depth,
                           pair_props=pair_props)
