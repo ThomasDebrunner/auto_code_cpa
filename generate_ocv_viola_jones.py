@@ -57,16 +57,16 @@ def generate_threshold_code_for_feature(feature, dpalpha, dnalpha, scaling):
     off_x = 12 - feature.top_left[0] - feature.width // 2
     off_y = 12 - feature.top_left[1] - feature.height // 2
 
-    prog += ['_d_transform(R4, R4, off_x, off_y);']
+    prog += ['_d_transform(R4, R4, %d, %d);' % (off_x, off_y)]
     prog = prog + ['// d_south(R4, R4);' for _ in range(off_y, 0)]
     prog = prog + ['// d_north(R4, R4);' for _ in range(0, off_y)]
     prog = prog + ['// d_east(R4, R4);' for _ in range(0, off_x)]
     prog = prog + ['// d_west(R4, R4);' for _ in range(off_x, 0)]
 
     prog = prog + [
-        'where(R4);',
+        'd_where(R4);',
         'in(D, %.7f);' % dnalpha,
-        'nor(FLAG, FLAG);',
+        'd_nor(FLAG, FLAG);',
         'in(D, %.7f);' % dpalpha,
         'all();',
         'add(B, B, D);'
@@ -79,9 +79,9 @@ def generate_stage_end_code(dthreshold):
         'in(D, %.7f);' % dthreshold,
         'sub(D, B, D);',
         'where(D);',
-        'nor(R12, FLAG);',
-        'nor(R11, R5);',
-        'nor(R5, R11, R12);',
+        'd_nor(R12, FLAG);',
+        'd_nor(R11, R5);',
+        'd_nor(R5, R11, R12);',
         'all();'
     ]
 
