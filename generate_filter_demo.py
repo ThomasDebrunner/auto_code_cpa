@@ -1,6 +1,6 @@
 from scamp_filter.scamp_filter import generate, PairGenProps
 import numpy as np
-
+import sys
 
 # These options control the algorithms heuristics
 pair_props = PairGenProps(
@@ -21,15 +21,15 @@ filter = np.array([
     [1, 0, -1]
 ])
 #
-# filter = np.array([
-#     [1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1],
-#     [1, 1, 1, 1, 1, 1, 1]
-# ])
+
+filter = np.array([
+    [1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1],
+])
+
 #
 # filter = np.array([
 #     [0.342, 0.125, 0.513],
@@ -50,7 +50,7 @@ start_reg = 'A'
 target_reg = 'A'
 available_regs = ['A', 'B', 'C']
 
-search_time = 2
+search_time = sys.maxsize
 approx_depth = 3
 
 # the format can be any of

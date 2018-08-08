@@ -147,10 +147,10 @@ def _r_search(goals, n_reg, plan, plans, cost_acc, min_cost, end_time, scale, so
             # if we generate a rest term, we have to add that one in this step as well
             step_cost = cost + operation_cost['add'] if len(new_goals) > len(goals) else cost
 
-        new_goals.append(down_set)
+        new_goals.append(up_set)
         # only continue to search here, if we can hold this many sub results in registers
         if len(new_goals) <= n_reg and cost_acc+step_cost < min_cost and _not_equal_goals(goals, new_goals):
-            min_cost = _r_search(new_goals, n_reg, plan + [PlanStep(goals, (down_set, up_set))], plans, cost_acc + step_cost, min_cost, end_time, scale, sol_stats, pair_props)
+            min_cost = _r_search(new_goals, n_reg, plan + [PlanStep(goals, (up_set, down_set))], plans, cost_acc + step_cost, min_cost, end_time, scale, sol_stats, pair_props)
             if end_time < time.time():
                 return min_cost
     return min_cost
