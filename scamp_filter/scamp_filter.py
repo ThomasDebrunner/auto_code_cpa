@@ -277,4 +277,4 @@ def generate(filter, search_time, available_regs=('A', 'B', 'C'), start_reg='A',
         print(colored('\U0000274C Validation failed!', 'red'))
         raise AssertionError('[Error] Code validation failed')
 
-    return program, sol_stats
+    return program, program_length, sol_stats

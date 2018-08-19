@@ -37,7 +37,7 @@ def generate_centre_goal_for_feature(feature):
 def generate_filter_code_for_feature(feature, search_time=2):
     goal, scaling = generate_centre_goal_for_feature(feature)
 
-    program, sol_stats = generate(goal, search_time, available_regs=['C', 'D', 'E'], out_format='CSIM', start_reg='A', target_reg='C', verbose=0, approx_depth=20, max_approx_coeffs=1)
+    program, program_length, sol_stats = generate(goal, search_time, available_regs=['C', 'D', 'E'], out_format='CSIM', start_reg='A', target_reg='C', verbose=0, approx_depth=20, max_approx_coeffs=1)
     return program, scaling
 
 
