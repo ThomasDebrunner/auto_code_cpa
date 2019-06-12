@@ -16,7 +16,7 @@ def approx(target, depth=5, max_coeff=-1, silent=True):
             break
 
         # if the error is smaller than half the current coefficient, we go further away from target
-        if abs(total - target) > 1/2*current:
+        if abs(total - target) > 1/2 * current:
 
             # decide which direction brings us closer to the target
             if abs((total-current)-target) > abs(total + current - target):
@@ -70,3 +70,21 @@ def approx_filter(filter, depth=4, max_coeff=-1, verbose=0):
         print_filter(approximated_filter)
 
     return pre_goal, approximated_filter
+
+def filter_from_pre_goal(pre_goal):
+    min_x = min(pre_goal, key=lambda item: item.x).x
+    max_x = max(pre_goal, key=lambda item: item.x).x
+    min_y = min(pre_goal, key=lambda item: item.y).y
+    max_y = max(pre_goal, key=lambda item: item.y).y
+
+    width = max_x - min_x + 1
+    height = max_y - min_y + 1
+
+    filter = np.zeros((height, width))
+
+    for item in pre_goal:
+        filter[height - 1 - (item.y - min_y), item.x - min_x] += (-1 if item.neg else 1) * (2**(-item.scale))
+    return filter
+
+
+

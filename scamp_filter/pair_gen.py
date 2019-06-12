@@ -28,10 +28,18 @@ def translate_goal(igoal, scale, nr_offset=0):
     unique in a set. An atom is ([nr], x, y) and globally unique. An atom has a fixed 2^-D scale."""
     agoal = set()
     nr = nr_offset
+    accumulator = {}
     for item in igoal:
         n_atoms = 2**(scale - item.scale)
-        agoal = agoal | {A(i, item.x, item.y, item.neg) for i in range(nr, nr+n_atoms)}
-        nr += n_atoms
+        key = (item.x, item.y)
+        if key in accumulator:
+            accumulator[key] = accumulator[key] + (-1 if item.neg else 1) * n_atoms
+        else:
+            accumulator[key] = (-1 if item.neg else 1) * n_atoms
+
+    for (x, y), n_atoms in accumulator.items():
+        agoal = agoal | {A(i, x, y, n_atoms < 0) for i in range(nr, nr+abs(n_atoms))}
+        nr += abs(n_atoms)
     return agoal, nr
 
 

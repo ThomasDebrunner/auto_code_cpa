@@ -13,6 +13,7 @@ import time
 from scamp_filter.pair_gen import generate_pairs, generate_pairs_gen, translate_back_set, translate_goal
 import random
 from termcolor import colored
+from math import log2, ceil, floor
 
 L_INT = 1e6
 
@@ -49,12 +50,17 @@ class PairGenProps:
 
 
 def _end_state(goal):
-    """An end state is reached when all atoms in the goal are at the same position"""
+    """An end state is reached when all atoms in the goal are at the same position and the number of atoms is a
+       multiple of two"""
     pivot_atom = next(iter(goal))
     px, py, pneg = pivot_atom.x, pivot_atom.y, pivot_atom.neg
     for a in goal:
         if a.x != px or a.y != py or a.neg != pneg:
             return False
+    number_of_atoms = len(goal)
+    # check for power of two
+    if not ceil(log2(number_of_atoms)) == floor(log2(number_of_atoms)):
+        return False
     return True
 
 
@@ -136,7 +142,8 @@ def _r_search(goals, n_reg, plan, plans, cost_acc, min_cost, end_time, scale, so
         pairs = generate_pairs_gen(goals, pair_props)
 
     # choose a pair
-    for cost, (up_set, down_set) in pairs:
+    for cost, (up, down) in pairs:
+        up_set, down_set = (down, up) if down.issubset(up) else (up, down)
         # compute rests
         eliminator = up_set | down_set
         new_goals = []

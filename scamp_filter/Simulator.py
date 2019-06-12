@@ -1,5 +1,7 @@
 from .Item import Item as I
+from .approx import filter_from_pre_goal, print_filter
 import re
+import numpy as np
 
 
 def _move(set, scale, x, y, neg):
@@ -136,16 +138,16 @@ def validate(program, expected_result, start_reg, target_reg, out_format):
         reg_state = interpret_apron(program, start_reg)
     actual = reg_state[target_reg]
 
-    if len(actual) == len(expected_result) and set(expected_result).issubset(actual):
+    expected_filter = filter_from_pre_goal(expected_result)
+    actual_filter = filter_from_pre_goal(actual)
+
+    if np.array_equal(expected_filter, actual_filter):
+        print_filter(filter_from_pre_goal(actual))
         return True
 
-    print('Expecected: ')
-    print(sorted(list(expected_result)))
+    print('Expected: ')
+    print_filter(expected_filter)
     print('Actual result: ')
-    print(sorted(list(actual)))
-    print('Missing:')
-    print(sorted(list(set(expected_result).difference(set(actual)))))
-    print('Extra:')
-    print(sorted(list(set(actual).difference(set(expected_result)))))
+    print_filter(actual_filter)
 
     return False

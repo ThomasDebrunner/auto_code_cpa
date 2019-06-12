@@ -22,13 +22,13 @@ filter = np.array([
 ])
 #
 
-filter = np.array([
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-])
+# filter = np.array([
+#     [1, 1, 1, 1, 1],
+#     [1, 1, 1, 1, 1],
+#     [1, 1, 1, 1, 1],
+#     [1, 1, 1, 1, 1],
+#     [1, 1, 1, 1, 1],
+# ])
 
 #
 # filter = np.array([
@@ -36,14 +36,12 @@ filter = np.array([
 #     [0.851, 0.111, 0.455],
 #     [0.513, 0.131, 0.634]
 # ])
-#
+
 # filter = np.array([
 #     [0.25, 0.0, 0.5],
 #     [0.75, 0.0, 0.5],
 #     [0.5, 0.25, 0.75]
 # ])
-
-# filter = np.array([[1,0.5,1]])
 
 
 start_reg = 'A'
@@ -51,7 +49,7 @@ target_reg = 'A'
 available_regs = ['A', 'B', 'C']
 
 search_time = 3
-approx_depth = 3
+approx_depth = 4
 
 # the format can be any of
 # APRON: A modified format for the APRON simulator.
@@ -63,6 +61,6 @@ program, program_length, sol_stats = generate(filter, search_time,
                           target_reg=target_reg,
                           available_regs=available_regs,
                           verbose=9,
-                          out_format='CSIM',
+                          out_format='APRON',
                           approx_depth=approx_depth,
                           pair_props=pair_props)
